@@ -27,7 +27,7 @@
   </div>
 
   <!-- API de Google Maps -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf9fWfTVLHs7qOaJUUABxj9_s3ud_79ik&libraries=places&callback=initMap" async defer></script>
 
   <!-- JavaScript -->
   <script>
@@ -69,7 +69,7 @@
       try {
         const response = await fetch(website);
         const text = await response.text();
-        const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+        const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zAZ0-9.-]+\.[a-zA-Z]{2,}/);
         return emailMatch ? emailMatch[0] : null;
       } catch (error) {
         console.error('Error obteniendo email:', error);
@@ -96,7 +96,7 @@
   function authenticateGmail() {
     gapi.load('client:auth2', () => {
       gapi.client.init({
-        clientId: '797390844795-',
+        clientId: '797390844795-ueetnodmqco926eu4u3ich3bq608e701.apps.googleusercontent.com',
         scope: 'https://www.googleapis.com/auth/gmail.send'
       }).then(() => gapi.auth2.getAuthInstance().signIn());
     });
