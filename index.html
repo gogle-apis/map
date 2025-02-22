@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Negocios Cercanos | Automatización</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
+    header { background: #007bff; color: white; text-align: center; padding: 20px; }
+    #map { height: 400px; width: 100%; }
+    .container { width: 90%; margin: auto; padding: 20px; }
+    .business-item { background: white; padding: 15px; margin: 10px 0; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .send-email { background: #28a745; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Negocios Cercanos (1000m)</h1>
+  </header>
+  
+  <!-- Mapa -->
+  <div id="map"></div>
+  
+  <div class="container">
+    <h2>Lista de Negocios</h2>
+    <div id="business-list"></div>
+  </div>
+
+  <!-- API de Google Maps -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap" async defer></script>
+
+  <!-- JavaScript -->
+  <script>
+    let map, service;
+    
+    function initMap() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+          map = new google.maps.Map(document.getElementById('map'), { center: userLocation, zoom: 15 });
+
+          const request = { location: userLocation, radius: 1000, type: ['store'] };
+          service = new google.maps.places.PlacesService(map);
+          service.nearbySearch(request, processResults);
+        });
+      }
+    }
+
+    function processResults(results, status) {
+      if (status === google.maps.places.PlacesServiceStatus.OK) {
+        results.forEach(place => {
+          getBusinessDetails(place);
+        });
+      }
+    }
+
+    function getBusinessDetails(place) {
+      service.getDetails({ placeId: place.place_id }, details => {
+        if (details) {
+          const email = extractEmailFromWebsite(details.website);
+          displayBusiness(details, email);
+          if (email) sendEmailAutomatically(email, details.name);
+        }
+      });
+    }
+
+    async function extractEmailFromWebsite(website) {
+      if (!website) return null;
+      try {
+        const response = await fetch(website);
+        const text = await response.text();
+        const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+        return emailMatch ? emailMatch[0] : null;
+      } catch (error) {
+        console.error('Error obteniendo email:', error);
+        return null;
+      }
+    }
+
+    function displayBusiness(details, email) {
+      const businessList = document.getElementById('business-list');
+      const businessHTML = `
+        <div class="business-item">
+          <h3>${details.name}</h3>
+          <p><strong>Dirección:</strong> ${details.formatted_address}</p>
+          <p><strong>Teléfono:</strong> ${details.formatted_phone_number || 'No disponible'}</p>
+          <p><strong>Correo:</strong> ${email || 'No encontrado'}</p>
+          ${email ? `<button class="send-email" onclick="sendEmail('${email}', '${details.name}')">Enviar Correo</button>` : ''}
+        </div>`;
+      businessList.innerHTML += businessHTML;
+    }
+  </script>
+
+<script src="https://apis.google.com/js/api.js"></script>
+<script>
+  function authenticateGmail() {
+    gapi.load('client:auth2', () => {
+      gapi.client.init({
+        clientId: '797390844795-',
+        scope: 'https://www.googleapis.com/auth/gmail.send'
+      }).then(() => gapi.auth2.getAuthInstance().signIn());
+    });
+  }
+
+  function sendEmail(toEmail, businessName) {
+    authenticateGmail();
+    
+    const emailSubject = `Desarrollo Web para ${businessName}`;
+    const emailBody = `Hola ${businessName},\n\nSoy un desarrollador web profesional y me gustaría ofrecer mis servicios.`;
+    
+    const rawEmail = `
+      From: "Yo" <ibarraleonelmatias73@gmail.com>
+      To: ${toEmail}
+      Subject: ${emailSubject}
+      
+      ${emailBody}
+    `;
+
+    const encodedEmail = btoa(rawEmail).replace(/\+/g, '-').replace(/\//g, '_');
+
+    gapi.client.gmail.users.messages.send({
+      userId: 'me',
+      resource: { raw: encodedEmail }
+    }).then(response => {
+      console.log('Correo enviado a:', toEmail, response);
+    }).catch(error => {
+      console.error('Error enviando correo:', error);
+    });
+  }
+</script>
+
+</body>
+</html>
