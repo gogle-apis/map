@@ -4,15 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Enviar Correos Masivos</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center; }
-    .container { max-width: 500px; margin: auto; padding: 20px; background: white; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    input, textarea { width: 100%; margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-    button { background: #28a745; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; }
-    button:hover { background: #218838; }
-    ul { list-style-type: none; padding: 0; }
-    li { text-align: left; margin: 5px 0; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
@@ -24,57 +16,6 @@
     <textarea id="message" placeholder="Mensaje"></textarea>
     <button id="sendEmailsBtn">Enviar Correos</button>
   </div>
-
-  <script>
-    // Array para almacenar correos
-    const emails = [];
-    // Expresión regular básica para validar correos
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // Función para agregar un correo validado
-    function addEmail() {
-      const emailInput = document.getElementById('emailInput');
-      const email = emailInput.value.trim();
-      if (!email) return; // Si está vacío, salir
-
-      if (!emailRegex.test(email)) {
-        alert("Por favor, ingresa un correo válido.");
-        return;
-      }
-
-      if (!emails.includes(email)) {
-        emails.push(email);
-        updateEmailList();
-        emailInput.value = "";
-      } else {
-        alert("El correo ya fue agregado.");
-      }
-    }
-
-    // Función para actualizar la lista visual de correos
-    function updateEmailList() {
-      const emailList = document.getElementById('emailList');
-      emailList.innerHTML = emails.map(email => `<li>${email}</li>`).join('');
-    }
-
-    // Función para enviar los correos
-    function sendEmails() {
-      const subject = document.getElementById('subject').value.trim();
-      const message = document.getElementById('message').value.trim();
-
-      if (!subject || !message || emails.length === 0) {
-        alert("Por favor, completa todos los campos y agrega al menos un correo.");
-        return;
-      }
-
-      // Se crea un solo enlace mailto con BCC para enviar a todos los correos
-      const mailtoLink = `mailto:?bcc=${emails.join(",")}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
-      window.location.href = mailtoLink;
-    }
-
-    // Asignar eventos a los botones
-    document.getElementById('addEmailBtn').addEventListener('click', addEmail);
-    document.getElementById('sendEmailsBtn').addEventListener('click', sendEmails);
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
