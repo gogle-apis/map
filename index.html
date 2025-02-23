@@ -27,7 +27,7 @@
   </div>
 
   <!-- API de Google Maps -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf9fWfTVLHs7qOaJUUABxj9_s3ud_79ik&libraries=places&callback=initMap" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=TU_CLAVE_API&libraries=places&callback=initMap" async defer></script>
 
   <!-- JavaScript -->
   <script>
@@ -57,77 +57,21 @@
     function getBusinessDetails(place) {
       service.getDetails({ placeId: place.place_id }, details => {
         if (details) {
-          const email = extractEmailFromWebsite(details.website);
-          displayBusiness(details, email);
-          if (email) sendEmailAutomatically(email, details.name);
+          displayBusiness(details);
         }
       });
     }
 
-    async function extractEmailFromWebsite(website) {
-      if (!website) return null;
-      try {
-        const response = await fetch(website);
-        const text = await response.text();
-        const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zAZ0-9.-]+\.[a-zA-Z]{2,}/);
-        return emailMatch ? emailMatch[0] : null;
-      } catch (error) {
-        console.error('Error obteniendo email:', error);
-        return null;
-      }
-    }
-
-    function displayBusiness(details, email) {
+    function displayBusiness(details) {
       const businessList = document.getElementById('business-list');
       const businessHTML = `
         <div class="business-item">
           <h3>${details.name}</h3>
           <p><strong>Dirección:</strong> ${details.formatted_address}</p>
           <p><strong>Teléfono:</strong> ${details.formatted_phone_number || 'No disponible'}</p>
-          <p><strong>Correo:</strong> ${email || 'No encontrado'}</p>
-          ${email ? `<button class="send-email" onclick="sendEmail('${email}', '${details.name}')">Enviar Correo</button>` : ''}
         </div>`;
       businessList.innerHTML += businessHTML;
     }
   </script>
-
-<script src="https://apis.google.com/js/api.js"></script>
-<script>
-  function authenticateGmail() {
-    gapi.load('client:auth2', () => {
-      gapi.client.init({
-        clientId: '797390844795-ueetnodmqco926eu4u3ich3bq608e701.apps.googleusercontent.com',
-        scope: 'https://www.googleapis.com/auth/gmail.send'
-      }).then(() => gapi.auth2.getAuthInstance().signIn());
-    });
-  }
-
-  function sendEmail(toEmail, businessName) {
-    authenticateGmail();
-    
-    const emailSubject = `Desarrollo Web para ${businessName}`;
-    const emailBody = `Hola ${businessName},\n\nSoy un desarrollador web profesional y me gustaría ofrecer mis servicios.`;
-    
-    const rawEmail = `
-      From: "Yo" <ibarraleonelmatias73@gmail.com>
-      To: ${toEmail}
-      Subject: ${emailSubject}
-      
-      ${emailBody}
-    `;
-
-    const encodedEmail = btoa(rawEmail).replace(/\+/g, '-').replace(/\//g, '_');
-
-    gapi.client.gmail.users.messages.send({
-      userId: 'me',
-      resource: { raw: encodedEmail }
-    }).then(response => {
-      console.log('Correo enviado a:', toEmail, response);
-    }).catch(error => {
-      console.error('Error enviando correo:', error);
-    });
-  }
-</script>
-
 </body>
 </html>
